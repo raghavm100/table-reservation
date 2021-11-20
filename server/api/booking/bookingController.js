@@ -1,15 +1,18 @@
 // ==== Libraries used ====
+var { validationResult } = require('express-validator')
 
 // ==== Local modules used ====
 var Table = require('../table/tableModel')
 var Booking = require('./bookingModel')
 var ErrorCollection = require('../../utils/errorCollection')
+var MiscController = require('./miscController')
 
 // ==== Controllers ====
 
 // ==== Add new Table ====
 exports.addBooking = async (req, res, next) => {
     try{
+        validationResult(req).throw()
         let reqBody = req.body
         
         // ==== Building Query structures ====
@@ -17,27 +20,13 @@ exports.addBooking = async (req, res, next) => {
             bookingStart: reqBody.time,
             bookingEnd: reqBody.time + reqBody.duration,
         }
-        let qs = {
-            $or: [
-                {
-                    bookingEnd: {$gt: reqBody.time},
-                    bookingStart: {$lt: reqBody.time + reqBody.duration}
-                },
-                builderQs
-            ]
-        }
 
-        // ==== Fetching all booked tables ====
-        let bookedTables = await Booking.find(qs, {table: 1}).lean()
-        bookedTables = bookedTables.map(booking => booking.table)
-
-        // ==== Fetching all available tables ====
-        let availableTables = await Table.find({_id: {$nin: bookedTables}}, {_id: 1}).lean()
+        let availableTables = await MiscController.checkTableAvailability(reqBody.time, reqBody.duration)
 
         // ==== Making a booking if any table is available ====
         if(availableTables.length === 0){
-            // ==== TODO: Send responde, No tables available ====
-            res.end("NO TABLE AVAILABLE!!!!")
+            let errRes = ErrorCollection.noTableAvailable
+            res.status(errRes.code).json(errRes)
             return
         }
         let selectableTable = availableTables[Math.floor(Math.random() * availableTables.length)]
@@ -100,6 +89,7 @@ exports.getBookings = async(req, res, next) => {
 // ==== Get booking details ====
 exports.getBookingDetails = async(req, res, next) => {
     try{
+        validationResult(req).throw()
         let reqParams = req.params
         let bookingId = reqParams.id
 
@@ -113,6 +103,51 @@ exports.getBookingDetails = async(req, res, next) => {
         }
 
         res.json(bookingDetails)
+    }catch(err){
+        next(err)
+    }
+}
+
+
+// ==== Cancel a booking ====
+exports.cancelBooking = async (req, res, next) => {
+    try{
+        validationResult(req).throw()
+        let reqParams = req.params
+        let bookingId = reqParams.id
+        let genericRes = { message: "Booking cancelled successfully" }
+
+        let bookingDetails = await Booking.findById(bookingId)
+        if(!bookingDetails){
+            let errRes = ErrorCollection.noBooking
+            res.status(errRes.code).json(errRes)
+            return
+        }
+
+        await bookingDetails.remove()
+        res.json(genericRes)
+    }catch(err){
+        next(err)
+    }
+}
+
+
+
+// ==== Check for Availability ====
+exports.checkAvailability = async (req, res, next) => {
+    try{
+        validationResult(req).throw()
+        let reqBody = req.body
+        let availableTables = await MiscController.checkTableAvailability(reqBody.time, reqBody.duration)
+
+        if(availableTables.length === 0){
+            let errRes = ErrorCollection.noTableAvailable
+            res.status(errRes.code).json(errRes)
+            return
+        }
+
+        res.json(availableTables)
+
     }catch(err){
         next(err)
     }

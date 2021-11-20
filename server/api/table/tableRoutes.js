@@ -3,13 +3,12 @@ var router = require('express').Router()
 
 // ==== Local modules used ====
 var controller = require('./tableController')
-// var tradeValidator = require('./tradeValidator')
+var tableValidator = require('./tableValidator')
 
 // ==== Routes ====
 
 router.route('/')
     .get(controller.listTables)
-    .post(controller.addTable)
-
+    .post(tableValidator.checkAddTable, controller.addTable)
 
 module.exports = router

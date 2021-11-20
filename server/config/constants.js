@@ -16,4 +16,7 @@ module.exports = {
 
     // ==== Database URL ====
     dbUrl: process.env.DB_URL,
+
+    // ==== Environment health ====
+    envHealth: process.env.ENV_HEALTH
 }

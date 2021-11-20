@@ -1,4 +1,5 @@
 // ==== Libraries used ====
+var { validationResult } = require('express-validator')
 
 // ==== Local modules used ====
 var Table = require('./tableModel')
@@ -9,6 +10,7 @@ var Table = require('./tableModel')
 // ==== Add new Table ====
 exports.addTable = async (req, res, next) => {
     try{
+        validationResult(req).throw()
         let reqBody = req.body
         
         // ==== Adding new table to database ====

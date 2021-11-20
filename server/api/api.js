@@ -4,21 +4,18 @@ var router = require('express').Router()
 // ==== Local Modules used ====
 var ErrorCollection = require('../utils/errorCollection')
 
-// var tradeRoutes = require('./trade/tradeRoutes')
-// var assetRoutes = require('./asset/assetRoutes')
-// var healthRoutes = require('./health/healthRoutes')
-// var testRoutes = require('./tests/testRoutes')
+// ==== Route Modules ====
 var tableRoutes = require('./table/tableRoutes')
 var bookingRoutes = require('./booking/bookingRoutes')
+var healthRoutes = require('./health/healthRoutes')
+var devTestRoutes = require('./dev-test/devTestRoutes')
 
 
 // ==== Routing internally ====
-// router.use('/trades', tradeRoutes)
-// router.use('/assets', assetRoutes)
-// router.use('/health', healthRoutes)
-// router.use('/tests', testRoutes)
 router.use('/tables', tableRoutes)
 router.use('/bookings', bookingRoutes)
+router.use('/health', healthRoutes)
+router.use('/dev-test', devTestRoutes)
 
 
 

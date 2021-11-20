@@ -30,6 +30,12 @@ module.exports = {
         message: "Table not found"
     },
 
+    // ==== Tables not available ====
+    noTableAvailable: {
+        code: 404,
+        message: "No Tables Available for given time & duration"
+    },
+
     // ==== Booking not found ====
     noBooking: {
         code: 404,
