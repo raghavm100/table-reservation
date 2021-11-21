@@ -21,6 +21,7 @@ exports.addBooking = async (req, res, next) => {
             bookingEnd: reqBody.time + reqBody.duration,
         }
 
+        // ==== Fetching available tables as per booking time ====
         let availableTables = await MiscController.checkTableAvailability(reqBody.time, reqBody.duration)
 
         // ==== Making a booking if any table is available ====
@@ -29,7 +30,7 @@ exports.addBooking = async (req, res, next) => {
             res.status(errRes.code).json(errRes)
             return
         }
-        let selectableTable = availableTables[Math.floor(Math.random() * availableTables.length)]
+        let selectableTable = availableTables[Math.floor(Math.random() * availableTables.length)] // ==== Random table selection ====
         builderQs.table = selectableTable._id
         builderQs.bookingName = reqBody.bookingName
         let newBooking = await Booking.create(builderQs)
@@ -46,6 +47,7 @@ exports.addBooking = async (req, res, next) => {
 exports.getBookings = async(req, res, next) => {
     try{
 
+        // ==== Aggregation for fetching all bookings and grouping as per table ====
         let allBookings = await Booking.aggregate([
             {
                 $group: {
@@ -93,9 +95,11 @@ exports.getBookingDetails = async(req, res, next) => {
         let reqParams = req.params
         let bookingId = reqParams.id
 
+        // ==== Fetch booking details as per bookingId ====
         let bookingDetails = await Booking.findById(bookingId)
             .populate("table", "name")
             .lean()
+
         if(!bookingDetails){
             let errRes = ErrorCollection.noBooking
             res.status(errRes.code).json(errRes)
@@ -117,13 +121,16 @@ exports.cancelBooking = async (req, res, next) => {
         let bookingId = reqParams.id
         let genericRes = { message: "Booking cancelled successfully" }
 
+        // ==== Fetching booking details ====
         let bookingDetails = await Booking.findById(bookingId)
         if(!bookingDetails){
+            // ==== Throwing error if no error exists ====
             let errRes = ErrorCollection.noBooking
             res.status(errRes.code).json(errRes)
             return
         }
 
+        // ==== Removing the booking if it exists ====
         await bookingDetails.remove()
         res.json(genericRes)
     }catch(err){
@@ -138,6 +145,8 @@ exports.checkAvailability = async (req, res, next) => {
     try{
         validationResult(req).throw()
         let reqBody = req.body
+
+        // ==== Fetching available tables ====
         let availableTables = await MiscController.checkTableAvailability(reqBody.time, reqBody.duration)
 
         if(availableTables.length === 0){

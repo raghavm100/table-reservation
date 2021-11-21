@@ -6,7 +6,6 @@ var controller = require('./bookingController')
 var bookingValidator = require('./bookingValidator')
 
 // ==== Routes ====
-
 router.route('/')
     .post(bookingValidator.checkAddBooking, controller.addBooking)
     .get(controller.getBookings)

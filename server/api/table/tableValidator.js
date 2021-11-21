@@ -3,7 +3,7 @@ var {body, param, query} = require('express-validator')
 
 // ==== Local Modules used ====
 
-
+// ==== Validator for Adding tables ====
 exports.checkAddTable = [
     body("tableName")
         .exists().withMessage("table name does not exist")

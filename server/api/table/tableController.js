@@ -34,6 +34,7 @@ exports.listTables = async (req, res, next) => {
         let limit = parseInt(reqQuery.limit) || 10
         let offset = parseInt(reqQuery.offset) || 0
         
+        // ==== Fetching total count and List of tables ====
         let tableCount = await Table.find({}).countDocuments()
         let tableList = await Table.find({})
             .limit(limit)
